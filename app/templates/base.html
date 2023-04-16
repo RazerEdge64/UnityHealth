@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta name="description" content="A tool to book doctors appointments.">
+            <meta name="author" content="Shubhang Kohirkar">
+                    
+            <!-- Bootstrap core CSS -->
+            <link href="{% static 'bootstrap5/css/tempus-dominus.min.css' %}" rel="stylesheet">
+            <link href="{% static 'bootstrap5/css/bootstrap.min.css' %}" rel="stylesheet">
+            <link href="{% static 'bootstrap5/css/bootstrap-icons.css' %}" rel="stylesheet">
+            <script src="{% static 'bootstrap5/js/jquery-3.5.1.js' %}"></script>
+
+            <link href="{%static 'DataTables/css/dataTables.bootstrap5.css'%}" rel="stylesheet">
+            
+            <!-- Favicons -->
+            <link rel="shortcut icon" type="image/png" href="{% static 'images/medical-team.png' %}"/>
+            {% comment %} <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/tool_app.png' %}"/> {% endcomment %}
+            {% comment %} <link rel="shortcut icon" type="image/png" href="{% static 'images/artificial-intelligence2.png' %}"/> {% endcomment %}
+        <meta name="theme-color" content="#7952b3">
+        
+            <style>
+              .bd-placeholder-img {
+                font-size: 1.125rem;
+                text-anchor: middle;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                user-select: none;
+              }
+        
+              @media (min-width: 768px) {
+                .bd-placeholder-img-lg {
+                  font-size: 3.5rem;
+                }
+              }
+
+            </style>
+    
+            <!-- Custom styles for this template -->
+            <link href="{%static 'bootstrap5/css/dashboard.css'%}" rel="stylesheet">
+            
+        <title>Unity Health
+          {% block title %}
+          {% endblock %}
+        </title>
+        
+        
+    </head>
+
+    <body>
+
+        <script src="{% static 'bootstrap5/js/feather.min.js'%}" ></script>
+
+        <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+            <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="{{"/home/"}}" title="Dashboard">
+              <span data-feather="shield"></span>
+              Unity Health
+            </a>
+            <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            {% comment %} <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"> {% endcomment %}
+            <div class="navbar-nav">
+              <div class="nav-item text-nowrap">
+                <a class="nav-link px-3" href="#"><span data-feather="log-out"></span></a>
+              </div>
+            </div>
+        </header>
+          <div class="container-fluid">
+            
+            <!-- Loader -->
+            <div class="text-center SpiningLoader" id="SpiningLoader" hidden>
+              <div class="spinner-border" style="width: 10rem; height: 10rem;" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+
+            <div class="row">
+              <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" style="overflow:auto">
+                <div class="position-sticky pt-3">
+                  <ul class="nav flex-column">
+
+                    <li class="nav-item ">
+                      <a class="nav-link doctors" href="{{"/doctors/"}}" title="Show all Doctors">
+                        <span data-feather="activity"></span>
+                        Doctors
+                      </a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link patients" aria-current="page" href="{{"/patients/"}}" title="Show all Patients">
+                        <span data-feather="users"></span>
+                        Patients
+                      </a>
+                    </li>
+                    
+                    <li class="nav-item ">
+                      <a class="nav-link appointments" href="{{"/appointments/"}}" title="Start all Appointments">
+                        <span data-feather="calendar"></span>
+                        Appointments
+                      </a>
+                    </li>
+
+                  </ul>
+          
+                  </ul>
+                </div>
+                <!--NEW-->
+                {% comment %} <div id="score_distribution_card" class="card" style="border-radius: 14px;
+                  margin-top: 10%;
+                  width: 95%;
+                  margin-left: 2.5%;" hidden>
+
+                  <div class="text-center">
+                    <h6><b> <u>Score Distribution</u> </b></h6>
+                    <h8 class="card-subtitle mb-2 text-muted" style="font-size:12px">Current Iteration</h8>
+                  </div>
+                  <div class="card-body">
+                    <div id="score_distribution_table">
+
+                    </div>
+                  </div>
+                </div> {% endcomment %}
+                
+                <div class="accordion" id="scores_accoridion" style="border-radius: 14px;
+                  margin-top: 5%;
+                  width: 95%;
+                  margin-left: 2.5%;"
+                  hidden>
+
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                        <span data-feather="bar-chart-2"></span>&nbsp;<b style="font-size: 0.875rem;"> Scores Distribution</b>
+                      </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordionExample2">
+                      <div class="accordion-body">
+                        <div id="score_distribution_card" class="" hidden>
+      
+                          <div class="text-center">
+                            {% comment %} <h6><b> <u>Score Distribution</u> </b></h6> {% endcomment %}
+                            <h8 class="card-subtitle mb-2 text-muted" style="font-size:12px"><u>For current Iteration</u></h8>
+                          </div>
+                          <div class="card-body">
+                            <div id="score_distribution_table">
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        <span data-feather="list"></span>&nbsp;<b style="font-size: 0.875rem;"> Scoring System</b>
+                      </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                      <div class="accordion-body">
+                        <div>
+                          <h8 class="card-subtitle mb-2 text-muted" style="font-size:14px"><b> The scores are divided into <u>5 classes</u>  by the AI algorithm</b>
+                          </h8>
+                          <br></br>
+                            <div class="table-responsive">
+                              <table class="table table-hover table-sm" style="width:100% ; white-space:nowrap ; font-size: 12.5px;"> 
+                                <thead> 
+                                  <tr class="table-dark"> 
+                                    <th scope="col" style="text-align:center;">Range</th> 
+                                    <th scope="col">Classes</th> 
+                                  </tr> 
+                                </thead> 
+                                <tbody>
+                                  <tr> 
+                                    <td style="text-align:center;"> <b>0-20</b></td> 
+                                    <td> Low Relevancy</td> 
+                                  </tr>
+                                  <tr> 
+                                    <td style="text-align:center;"> <b>20-40</b></td> 
+                                    <td> Somewhat Relevant</td> 
+                                  </tr>
+                                  <tr> 
+                                    <td style="text-align:center;"> <b>40-60</b></td> 
+                                    <td> Middle Relevancy</td> 
+                                  </tr>
+                                  <tr> 
+                                    <td style="text-align:center;"> <b>60-80</b></td> 
+                                    <td> Relevant</td> 
+                                  </tr> 
+                                  <tr> 
+                                    <td style="text-align:center;"> <b>80-100</b></td> 
+                                    <td> Most Relevant</td> 
+                                  </tr> 
+                                </tbody>
+                              </table>
+                            </div>
+                          
+                        </div>
+                        {% comment %} <p> <b>The scores are divided into 5 classes by the AI algorithm.</b></p>
+                        <p> <b>0-20 →</b> Low Relevant</p>
+                        <p> <b>20-40 →</b> Somewhat Relevant</p>
+                        <p> <b>40-60 →</b> Middle Relevant</p>
+                        <p> <b>60-80 →</b> Relevant</p>
+                        <p> <b>80-100 →</b> Most Relevant</p> {% endcomment %}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!--NEW-->
+              </nav>
+              <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">       
+                {% comment %} {% if user.is_authenticated %} {% endcomment %}
+                {% block content %}
+
+                {% endblock content %}
+                {% comment %} {% endif %} {% endcomment %}
+              </main>
+            </div>
+          </div>
+        <!-- Bootstrap core JavaScript -->
+        <script src="{% static 'bootstrap5/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'bootstrap5/js/feather.min.js' %}"></script>
+
+        <script src="{% static 'DataTables/js/jquery.dataTables.js' %}"></script>
+
+        <script src= "{%static 'DataTables/js/dataTables.bootstrap5.js' %}" ></script> 
+        <script src="{% static 'bootstrap5/js/ellipsis.js' %}"></script>
+        <script src="{% static 'bootstrap5/js/popper.min.js' %}"></script>
+        <script src="{% static 'bootstrap5/js/tempus-dominus.min.js' %}"></script>
+        <script>
+            feather.replace()
+        </script>
+
+        <!-- Loader -->
+        <style>
+          .SpiningLoader {
+              position: fixed;
+              display: block;
+              width: 100%;
+              height: 100%;
+              top: 0;
+              left: 0;
+              text-align: center;
+              /* opacity: 0.5;
+              background-color: #fff; */
+              z-index: 99;
+              top: 35%;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              z-index: 99999999;
+              position: fixed;
+              display: block;
+            }      
+        </style>
+        
+    </body>
+</html>
