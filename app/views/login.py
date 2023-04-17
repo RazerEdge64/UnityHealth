@@ -15,7 +15,7 @@ def check_login(request):
     else:
         login(request, user)
         # change this to patient screens
-        return redirect('/appointment_confirmation')
+        return redirect('/user')
 
 def user_logout(request):
     logout(request)
