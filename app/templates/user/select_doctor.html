@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}
+| Select Doctor
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="container">
+
+    <h1 class="my-3">Doctor Selection</h1>
+    <form id="doctor-selection-form">
+      <div class="mb-3">
+        <label for="hospital-select" class="form-label">Select Hospital</label>
+        <select class="form-select" id="hospital-select" required>
+          <option selected disabled value="">Choose...</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="doctor-select" class="form-label">Select Doctor</label>
+        <select class="form-select" id="doctor-select" required>
+          <option selected disabled value="">Choose...</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Select Time</button>
+    </form>
+  </div>
+
+  <script>
+    const hospitalSelect = document.getElementById("hospital-select");
+    const doctorSelect = document.getElementById("doctor-select");
+    const form = document.getElementById("doctor-selection-form");
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    async function fetchHospitals() {
+      const response = await fetch("/fetch_hospitals", {
+        method: "GET"
+      });
+
+      const hospitals = await response.json();
+      const hospital_array = hospitals.data;
+      console.log(hospital_array);
+      hospital_array.forEach(hospital => {
+        const option = document.createElement("option");
+        option.value = hospital.hospital_id;
+        option.textContent = hospital.hospital_name;
+        hospitalSelect.appendChild(option);
+      });
+    }
+
+    hospitalSelect.addEventListener("change", async function () {
+      doctorSelect.innerHTML = '<option selected disabled value="">Choose...</option>';
+
+      const hospitalId = hospitalSelect.value;
+      console.log(hospitalId);
+      const response = await fetch("/fetch_doctors/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({ hospital_id: hospitalId })
+      });
+
+      const doctors = await response.json();
+      const doctors_array = doctors.data;
+      console.log(doctors_array);
+      doctors_array.forEach(doctor => {
+        const option = document.createElement("option");
+        option.value = doctor.doctor_id;
+        const firstName = doctor.first_name ? doctor.first_name : "";
+        const lastName = doctor.last_name ? doctor.last_name : "";
+        option.textContent = firstName + " " + lastName;
+        doctorSelect.appendChild(option);
+      });
+      
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      console.log("Selected Hospital:", hospitalSelect.value);
+      console.log("Selected Doctor:", doctorSelect.value);
+      // Perform the desired action after form submission.
+    });
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const selectedHospitalId = hospitalSelect.value;
+        const selectedDoctorId = doctorSelect.value;
+        console.log("Selected Hospital:", selectedHospitalId);
+        console.log("Selected Doctor:", selectedDoctorId);
+      
+        // Redirect to the select_time page with the selected hospital and doctor IDs
+        window.location.href = `/select_time?hospital_id=${selectedHospitalId}&doctor_id=${selectedDoctorId}`;
+      });
+      
+
+    // Fetch hospitals when the page loads
+    fetchHospitals();
+  </script>
+
+
+{% endblock %}
