@@ -5,9 +5,10 @@ from django.urls import path
 from app.views import dashboard
 from app.views import login
 from app.views.doctors import doctors
+from app.views.doctors import doctor_operations
 from app.views.patients import patients
 from app.views.appointments import appointments
-from app.views.user import user_operations
+from app.views.patients import user_operations
 from app.views.requests import ajax
 
 
@@ -38,6 +39,9 @@ urlpatterns = [
 
     path('user/', user_operations.user_dashboard, name="user_dashboard"),
     path('select_time/', user_operations.select_time, name="select_time"),
+
+    path('doctor_appointments/', doctor_operations.doctor_appointments, name="doctor_appointments"),
+    path('time_slots/', doctor_operations.time_slots, name="time_slots"),
 
     # Requests
     path('get_appointments_ajax/', ajax.get_appointments_ajax, name="get_appointments"),

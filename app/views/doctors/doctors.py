@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from .d_helper import DHelper as helper
 
 
-TEMPLATE_DIR = "admin/doctors/"
+TEMPLATE_DIR = "doctors/"
 
 
 def doctors(request):
