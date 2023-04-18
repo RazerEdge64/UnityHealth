@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from .p_helper import PHelper as helper
 
-TEMPLATE_DIR = "admin/patients/"
+TEMPLATE_DIR = "patients/"
 
 
 def patients(request):
