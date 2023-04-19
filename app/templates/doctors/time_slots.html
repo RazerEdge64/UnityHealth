@@ -7,10 +7,18 @@
 {% block content %}
 {% csrf_token %}
 
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'doctor_appointments' %}?id={{request.GET.id}}">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Create Slots</li>
+    </ol>
+</nav>
+
   <div class="container">
     <h1 class="my-3">Create Time Slots</h1>
-    <form id="time-slots-form">
-      <div class="mb-3">
+    <form action="{% url 'create_time_slots' %}" method="POST" id="time-slots-form">
+        {% csrf_token %}
+        <div class="mb-3">
         <label for="date-select" class="form-label">Select Date</label>
         <input type="date" class="form-control" id="date-select" required>
       </div>
@@ -54,24 +62,30 @@
       e.preventDefault();
       const selectedDate = dateSelect.value;
       const selectedTimeSlots = Array.from(document.querySelectorAll("#time-slots-list input:checked")).map(input => input.value);
+      const urlParams = new URLSearchParams(window.location.search);
+      const doctor_id = urlParams.get('id');
+
 
       console.log("Selected Date:", selectedDate);
       console.log("Selected Time Slots:", selectedTimeSlots);
 
-      const response = await fetch("/time_slots/", {
+      const response = await fetch("/create_time_slots/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": csrfToken
         },
-        body: JSON.stringify({ date: selectedDate, time_slots: selectedTimeSlots })
+        body: JSON.stringify({ date: selectedDate, time_slots: selectedTimeSlots, doctor_id: doctor_id })
       });
 
+      
       if (response.ok) {
         alert("Time slots created successfully.");
+        window.location.href = `/doctor_appointments/?id=${doctor_id}`;
       } else {
         alert("An error occurred while creating time slots.");
       }
+    
     });
 
     // Create time slots when the page loads
@@ -92,6 +106,109 @@
   </style>
 
 {% endblock %}
+
+{% comment %} {% extends 'base.html' %}
+
+{% block title %}
+| Time slots
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+  <div class="container">
+    <h1 class="my-3">Create Time Slots</h1>
+    <form action="{% url 'create_time_slots' %}" method="POST" id="time-slots-form">
+        {% csrf_token %}
+        <div class="mb-3">
+        <label for="date-select" class="form-label">Select Date</label>
+        <input type="date" class="form-control" id="date-select" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Select Time Slots</label>
+        <div class="list-group list-group-horizontal" id="time-slots-list">
+          <!-- Time slots will be populated here -->
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    const timeSlotsForm = document.getElementById("time-slots-form");
+    const dateSelect = document.getElementById("date-select");
+    const timeSlotsList = document.getElementById("time-slots-list");
+    const submitButton = document.getElementById("submit-button");
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    function createTimeSlots() {
+      const startTime = 7; // 0 hours, i.e., 00:00
+      const endTime = 22; // 24 hours, i.e., 00:00 next day
+      const interval = 30; // 15 minutes
+
+      for (let hour = startTime; hour < endTime; hour++) {
+        for (let minute = 0; minute < 60; minute += interval) {
+          const timeSlot = document.createElement("div");
+          timeSlot.className = "form-check";
+          timeSlot.innerHTML = `
+            <input class="form-check-input" type="checkbox" id="time-${hour}-${minute}" value="${hour}:${minute}">
+            <label class="form-check-label" for="time-${hour}-${minute}">
+              ${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}
+            </label>
+          `;
+          timeSlotsList.appendChild(timeSlot);
+        }
+      }
+    }
+
+    timeSlotsForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const selectedDate = dateSelect.value;
+      const selectedTimeSlots = Array.from(document.querySelectorAll("#time-slots-list input:checked")).map(input => input.value);
+      const urlParams = new URLSearchParams(window.location.search);
+      const doctor_id = urlParams.get('id');
+
+
+      console.log("Selected Date:", selectedDate);
+      console.log("Selected Time Slots:", selectedTimeSlots);
+
+      const response = await fetch("/create_time_slots/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({ date: selectedDate, time_slots: selectedTimeSlots, doctor_id: doctor_id })
+      });
+
+      /**
+      if (response.ok) {
+        alert("Time slots created successfully.");
+      } else {
+        alert("An error occurred while creating time slots.");
+      }
+      */
+      submitButton.click();
+    });
+
+    // Create time slots when the page loads
+    createTimeSlots();
+  </script>
+
+  <style>
+    #time-slots-list {
+      display: flex;
+      flex-wrap: wrap;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    #time-slots-list .form-check {
+      width: 33%;
+    }
+  </style>
+
+{% endblock %}  {% endcomment %}
 
 
 {% comment %} {% extends 'base.html' %}

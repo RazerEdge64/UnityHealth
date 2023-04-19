@@ -71,6 +71,18 @@ DATABASES = {
     }
 }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'unityhealth',
+        'USER': 'root',
+        'PASSWORD': '',
+        # 'HOST': 'your_database_host',
+        # 'PORT': 'your_database_port',
+    }
+}
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

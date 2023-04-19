@@ -63,6 +63,17 @@ CREATE TABLE hospitals (
     hospital_email VARCHAR(50)
 );
 
+CREATE TABLE time_slots (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  doctor_id INT NOT NULL,
+  FOREIGN KEY (doctor_id) REFERENCES doctors (doctor_id)
+);
+
+
+
 INSERT INTO patients (patient_id, first_name, last_name, date_of_birth, gender, phone_no)
 VALUES
   (1, 'John', 'Doe', '1980-01-01', 'Male', 1234567890),
@@ -118,5 +129,7 @@ VALUES
 
 SET SQL_SAFE_UPDATES = 0;
 UPDATE doctors SET hospital_id = FLOOR(RAND()*3) + 1;
+DELETE FROM time_slots;
 SET SQL_SAFE_UPDATES = 1;
 
+INSERT INTO time_slots (date, start_time, end_time, doctor_id) VALUES ('2023-04-12', '10:0:00', '11:0:00', 1);

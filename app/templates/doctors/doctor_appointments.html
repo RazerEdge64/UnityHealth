@@ -1,1 +1,155 @@
-<a type="submit" href= "{{"/time_slots/"}}" class="btn btn-primary">Select Time</a>
+{% extends 'base.html' %}
+
+{% block title %}
+| Doctor Appointment
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Existing Appointments</h1>
+  
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a type="submit" href="/show_time_slots/" class="btn btn-sm btn-primary select-time-button">
+        <span data-feather="plus"></span>
+        Create Time slots
+        </a>
+    </div>
+
+</div>
+
+<div class="table-responsive" onmousemove="afterDTFinish()">
+    <table class="table table-striped table-bordered" id="product_table"
+      style="width:100% ; white-space:nowrap ; word-wrap:break-word;">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Date</th>
+          <th scope="col">Start Time</th>
+          <th scope="col">End Time</th>
+          <th scope="col">Delete</th>
+        </tr>
+      </thead>
+    </table>
+</div>
+
+<script>
+    $('.nav-item').find('.patients').addClass('active')
+    const urlParams = new URLSearchParams(window.location.search);
+    const doctorId = urlParams.get('id');
+
+    var TABLE = "";
+    var x = 1;
+    $(document).ready(function () {
+      // var x = 1;
+      console.log("Calling DataTable...");
+  
+      TABLE = $('#product_table').DataTable({
+  
+        "processing": true,
+        "serverSide": true,
+        //"stateSave" : true,
+        "serverMethod": 'post',
+        "ajax": {
+          url: "/get_time_slots/",
+          data: {
+            "csrfmiddlewaretoken": '{{csrf_token}}',
+            "doctor_id" : doctorId
+          },
+        },
+  
+        //"ordering": false,
+        "language": {
+          "searchPlaceholder": "date"
+        },
+  
+        "columnDefs": [
+          {
+            "orderable": false,
+            "targets": [2, 3, 4]
+          }
+        ],
+  
+        "columns": [
+  
+          { 'data': 'id' },
+          { 'data': 'date' },
+          { 'data': 'start_time' },
+          { 'data': 'end_time' },
+          {
+            "data": null,
+            "render": function (data, type, row) {
+              feather.replace()
+              return '<a class="delete_product" href="#" style="color: red" id="delete_button" data-bs-toggle="modal" data-bs-target="#Delete"> <span data-feather="trash"></span> </a>';
+            }
+          }
+        ],
+  
+        "initComplete": function (settings, json) {
+          afterDTFinish();
+        },
+        "fnDrawCallback ": function (settings, json) {
+          afterDTFinish();
+        }
+      }).on('search.dt', function () {
+        console.log("Search");
+        afterDTFinish();
+      })
+  
+      feather.replace();
+      /* End */
+  
+    });
+    function afterDTFinish() {
+      //console.log("afterDTFinish");
+      feather.replace();
+  
+      $(".delete_product").click(function () {
+        console.log("Clicked Delete");
+        var currentTD = $(this).parents('tr');
+        var cols = currentTD.children("td");
+        //$("#delete_id_text_filler").text($(cols[1]).text())
+        //$("#delete_id").val($(cols[1]).text())
+  
+        $("#delete_id_text_filler").text($(cols[1]).text() + " " + $(cols[2]).text())
+        $("#delete_id").val($(cols[0]).text())
+
+        // Set the value of the 'doctor_id' input field
+        $("#doctor_id").val(doctorId);
+
+      });
+      feather.replace()
+    }
+    //----
+  
+  window.addEventListener('DOMContentLoaded', function() {
+    const id = new URLSearchParams(window.location.search).get('id');
+    const selectTimeButton = document.querySelector('.select-time-button');
+    selectTimeButton.href += `?id=${id}`;
+  });
+</script>
+
+<!--_________________ Delete Modal _________________-->
+<div class="modal fade" id="Delete" tabindex="-1" aria-labelledby="DeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="DeleteLabel">Delete Patient</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="POST" action="{{"/delete_time_slot/"}}">
+            {% csrf_token %}
+            <div class="modal-body">
+                Are you sure you want to delete patient - <b> <text id="delete_id_text_filler"></text> </b>?
+                <input type="text" class="form-control" id="delete_id" name="delete_id" hidden>
+                <input type="text" class="form-control" id="doctor_id" name="doctor_id" hidden>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -37,11 +37,12 @@ urlpatterns = [
     path('appointments/', appointments.appointments, name="show_appointments"),
     path('appointment_confirmation/', appointments.appointment_confirmation, name="appointment_confirmation"),
 
-    path('user/', user_operations.user_dashboard, name="user_dashboard"),
+    path('user', user_operations.user_dashboard, name="user_dashboard"),
     path('select_time/', user_operations.select_time, name="select_time"),
 
     path('doctor_appointments/', doctor_operations.doctor_appointments, name="doctor_appointments"),
-    path('time_slots/', doctor_operations.time_slots, name="time_slots"),
+    path('show_time_slots/', doctor_operations.show_time_slots, name="show_time_slots"),
+    path('create_time_slots/', doctor_operations.create_time_slots, name="create_time_slots"),
 
     # Requests
     path('get_appointments_ajax/', ajax.get_appointments_ajax, name="get_appointments"),
@@ -49,6 +50,9 @@ urlpatterns = [
     path('get_patients_ajax/', ajax.get_patients_ajax, name="get_patients"),
     path('fetch_hospitals/', ajax.fetch_hospitals, name="fetch_hospitals"),
     path('fetch_doctors/', ajax.fetch_doctors, name="fetch_doctors"),
+    path('get_time_slots/', ajax.get_time_slots, name="get_time_slots"),
+    path('delete_time_slot/', ajax.delete_time_slot, name="delete_time_slot"),
+    path('get_time_slots_for_patients/', ajax.get_time_slots_for_patients, name="get_time_slots_for_patients"),
     
 
 ]

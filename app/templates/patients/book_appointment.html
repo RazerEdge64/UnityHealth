@@ -5,12 +5,13 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="container">
 
 
     <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{"/user/"}}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{"/user?id=0"}}">Home</a></li>
           <li class="breadcrumb-item active" aria-current="page">Book Slots</li>
         </ol>
     </nav>
@@ -18,21 +19,100 @@
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Appointment Slots</h1>
   </div>
-  
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Available Slot</h5>
-          <p class="card-text">10:00 AM - 10:30 AM</p>
-          <button class="btn btn-primary book-slot" data-slot="10:00 AM - 10:30 AM">Book Slot</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- Add more appointment slots here -->
-
+  <div id="container_for_cards" class="row row-cols-1 row-cols-md-3 g-4">
   </div>
+
+</div>
+
+<script>
+  $(document).ready(function() {
+    const doctorId = new URLSearchParams(window.location.search).get('doctor_id');
+
+    $.ajax({
+      url: '/get_time_slots_for_patients/',
+      method: 'POST',
+      data: { doctor_id: doctorId, csrfmiddlewaretoken: '{{csrf_token}}' },
+      dataType: 'json',
+      success: function(response) {
+        const slots = response.data;
+        const slotContainer = document.querySelector('#container_for_cards');
+
+        slots.forEach(function(slot) {
+          const start_time = slot.start_time;
+          const end_time = slot.end_time;
+          const date = slot.date;
+
+          const cardDiv = document.createElement('div');
+          cardDiv.className = 'col';
+
+          const card = document.createElement('div');
+          card.className = 'card';
+
+          const cardBody = document.createElement('div');
+          cardBody.className = 'card-body';
+
+          const cardTitle = document.createElement('h5');
+          cardTitle.className = 'card-title';
+          cardTitle.textContent = 'Available Slot';
+
+          const cardSubTitle = document.createElement('h6');
+          cardSubTitle.className = 'card-subtitle mb-2 text-body-secondary';
+          cardSubTitle.textContent = `Date : ${date}`;
+
+          const cardText = document.createElement('p');
+          cardText.className = 'card-text';
+          cardText.textContent = `${start_time} - ${end_time}`;
+
+          const bookSlotButton = document.createElement('button');
+          bookSlotButton.className = 'btn btn-primary book-slot';
+          bookSlotButton.setAttribute('data-slot', `${start_time} - ${end_time}`);
+          bookSlotButton.textContent = 'Book Slot';
+
+          cardBody.appendChild(cardTitle);
+          cardBody.appendChild(cardSubTitle);
+          cardBody.appendChild(cardText);
+          cardBody.appendChild(bookSlotButton);
+          card.appendChild(cardBody);
+          cardDiv.appendChild(card);
+          slotContainer.appendChild(cardDiv);
+        });
+
+        // Attach event listeners to book-slot buttons
+        document.querySelectorAll('.book-slot').forEach(function (slotButton) {
+          slotButton.addEventListener('click', function (event) {
+            const slotTime = event.target.getAttribute('data-slot');
+            document.getElementById('slot-time').textContent = slotTime;
+            const modal = new bootstrap.Modal(document.getElementById('bookingConfirmation'));
+            modal.show();
+          });
+        });
+      },
+      error: function(xhr, status, error) {
+        console.error(error);
+      }
+    });
+  });
+
+  document.querySelectorAll('.book-slot').forEach(function (slotButton) {
+    slotButton.addEventListener('click', function (event) {
+      const slotTime = event.target.getAttribute('data-slot');
+      document.getElementById('slot-time').textContent = slotTime;
+      const modal = new bootstrap.Modal(document.getElementById('bookingConfirmation'));
+      modal.show();
+    });
+  });
+
+    document.querySelectorAll('.book-slot').forEach(function (slotButton) {
+      slotButton.addEventListener('click', function (event) {
+        const slotTime = event.target.getAttribute('data-slot');
+        document.getElementById('slot-time').textContent = slotTime;
+        const modal = new bootstrap.Modal(document.getElementById('bookingConfirmation'));
+        modal.show();
+      });
+    });
+  
+</script>
 
   <!-- Booking Confirmation Modal -->
   <div class="modal fade" id="bookingConfirmation" tabindex="-1" aria-labelledby="bookingConfirmationLabel" aria-hidden="true">
@@ -52,18 +132,5 @@
       </div>
     </div>
   </div>
-
-</div>
-
-<script>
-  document.querySelectorAll('.book-slot').forEach(function (slotButton) {
-    slotButton.addEventListener('click', function (event) {
-      const slotTime = event.target.getAttribute('data-slot');
-      document.getElementById('slot-time').textContent = slotTime;
-      const modal = new bootstrap.Modal(document.getElementById('bookingConfirmation'));
-      modal.show();
-    });
-  });
-</script>
 
 {% endblock %}
