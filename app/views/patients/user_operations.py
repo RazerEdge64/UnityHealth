@@ -6,7 +6,12 @@ TEMPLATE_DIR = "patients/"
 
 @login_required
 def user_dashboard(request):
-    
+    # render a datatable with the existing appointments.
+
+    # return render(request, TEMPLATE_DIR+'select_doctor.html')
+    return render(request, TEMPLATE_DIR+'current_appointments.html')
+
+def select_doctor(request):
     return render(request, TEMPLATE_DIR+'select_doctor.html')
 
 

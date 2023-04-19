@@ -89,11 +89,14 @@
         e.preventDefault();
         const selectedHospitalId = hospitalSelect.value;
         const selectedDoctorId = doctorSelect.value;
+        const urlParams = new URLSearchParams(window.location.search);
+        const patientId = urlParams.get('id');
+
         console.log("Selected Hospital:", selectedHospitalId);
         console.log("Selected Doctor:", selectedDoctorId);
       
         // Redirect to the select_time page with the selected hospital and doctor IDs
-        window.location.href = `/select_time?hospital_id=${selectedHospitalId}&doctor_id=${selectedDoctorId}`;
+        window.location.href = `/select_time?hospital_id=${selectedHospitalId}&doctor_id=${selectedDoctorId}&patient_id=${patientId}`;
       });
       
 

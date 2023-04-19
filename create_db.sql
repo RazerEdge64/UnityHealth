@@ -127,9 +127,20 @@ VALUES
     ('Memorial Hospital', '456 Oak Ave.', '555-555-9876', '555-555-4321', 'www.memorialhospital.com', 'info@memorialhospital.com'),
     ('Community Hospital', '789 Elm St.', '555-555-5555', '555-555-5555', 'www.communityhospital.com', 'info@communityhospital.com');
 
-SET SQL_SAFE_UPDATES = 0;
-UPDATE doctors SET hospital_id = FLOOR(RAND()*3) + 1;
-DELETE FROM time_slots;
-SET SQL_SAFE_UPDATES = 1;
+-- SET SQL_SAFE_UPDATES = 0;
+-- UPDATE doctors SET hospital_id = FLOOR(RAND()*3) + 1;
+-- DELETE FROM time_slots;
+-- TRUNCATE TABLE appointments;
+-- SET SQL_SAFE_UPDATES = 1;
 
 INSERT INTO time_slots (date, start_time, end_time, doctor_id) VALUES ('2023-04-12', '10:0:00', '11:0:00', 1);
+
+
+-- drop the time column
+ALTER TABLE appointments
+DROP COLUMN time;
+
+-- add the start_time and end_time columns
+ALTER TABLE appointments
+ADD start_time TIME NOT NULL,
+ADD end_time TIME NOT NULL;
