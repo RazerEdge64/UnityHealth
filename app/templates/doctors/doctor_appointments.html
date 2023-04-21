@@ -4,6 +4,11 @@
 | Doctor Appointment
 {% endblock %}
 
+{% comment %} {% block user_profile %}
+href="{% url 'profile' %}"
+  <a class="btn btn-outline-primary">{{ "Hello Doctor "|add:request.user.username }}</a>
+{% endblock %} {% endcomment %}
+
 {% block content %}
 {% csrf_token %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -24,9 +29,11 @@
       <thead>
         <tr>
           <th scope="col">ID</th>
+          <th scope="col">Patient Name</th>
           <th scope="col">Date</th>
           <th scope="col">Start Time</th>
           <th scope="col">End Time</th>
+          <th scope="col">Prescribe</th>
           <th scope="col">Delete</th>
         </tr>
       </thead>
@@ -72,10 +79,21 @@
   
         "columns": [
   
-          { 'data': 'id' },
+          { 'data': 'appointment_id' },
+          { 'data': 'patient_name' },
           { 'data': 'date' },
           { 'data': 'start_time' },
           { 'data': 'end_time' },
+          {
+            "data": null,
+            "render": function (data, type, row) {
+              feather.replace();
+              const urlSearchParams = new URLSearchParams(window.location.search);
+              const doctorId = urlSearchParams.get("id");
+              const prescribeUrl = `/prescribe?appointment_id=${row.appointment_id}&doctor_id=${doctorId}`;
+              return `<a class='edit_product' target='_blank' href='${prescribeUrl}' id='edit_button'> <span data-feather='file-text'></span> </a>`;
+            }
+          },        
           {
             "data": null,
             "render": function (data, type, row) {

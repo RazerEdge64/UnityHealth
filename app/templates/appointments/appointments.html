@@ -58,16 +58,16 @@
             },
           },
           
-        //"ordering": false,
+        "ordering": true,
+        "searching": true,
         "language": {
           "searchPlaceholder": "ID, Patient, Doc"
         },
 
         "columnDefs": [
             {
-              "orderable" : false,
-              "targets" : [2,3,4,5]
-              
+              "orderable" : true,
+              "targets" : [1]
             }
         ],  
 
@@ -79,15 +79,6 @@
           {'data' : 'date'},
           {'data' : 'start_time'},
           {'data' : 'end_time'},
-          /**
-          {
-            "data" : null,
-            "render" : function(data, type, row){
-              feather.replace();
-              return "<a class='edit_product' href='#' id='edit_button' data-bs-toggle='modal' data-bs-target='#EditProduct'> <span data-feather='edit'></span> </a>";
-            }
-          },
-          */
           {
             "data" : null,
             "render" : function(data, type, row){

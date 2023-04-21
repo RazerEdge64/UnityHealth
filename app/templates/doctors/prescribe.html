@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}
+| Prescribe
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Prescribe :</h1>
+</div>
+
+<div class="row">
+  <div class="col-sm-6">
+    <h4 class="h4">Select medicines and dosages:</h4>
+    <form method="POST" action="{% url 'create_prescription' %}" id="prescription-form">    
+      {% csrf_token %}
+      <input type="hidden" name="appointment_id" value="{{ APPOINTMENT_ID }}">
+      <input type="hidden" name="doctor_id" value="{{ APPOINTMENT_ID }}">
+      <div id="medicine-selectors-wrapper">
+        <div id="medicine-selectors">
+
+          {% comment %} <div class="form-group">
+            <label for="medicine-1">Medicine 1:</label>
+            <select class="form-control" name="medicines[]">
+              <option value="" selected disabled>Select a medicine</option>
+              {% for medicine in MEDICINES %}
+                <option value="{{ medicine.medicine_id }}">{{ medicine.medicine_name }}</option>
+              {% endfor %}
+            </select>
+            <textarea class="form-control" name="dosages[]" rows="2" placeholder="Dosage"></textarea>
+          </div>  {% endcomment %}
+
+        </div>
+        <br>
+      </div>
+      <br>
+      <div>
+        <button type="button" class="btn btn-outline-primary" id="add-medicine-btn">
+          <span data-feather="plus"></span>
+          Add another medicine
+        </button>
+      </div>
+      
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary mt-3">Prescribe</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<script>
+  const medicineSelectorsWrapperDiv = document.querySelector("#medicine-selectors-wrapper");
+  const addMedicineBtn = document.querySelector("#add-medicine-btn");
+  let medicineCounter = {{ MEDICINES_EXISTING|length }} + 1;
+  console.log(medicineCounter);
+
+  {% if MEDICINES_EXISTING %}
+  let medicineDiv;
+    {% for medicine in MEDICINES_EXISTING %}
+      medicineDiv = document.createElement("div");
+      medicineDiv.classList.add("form-group");
+      medicineDiv.innerHTML = `
+        <label for="medicine-${medicineCounter}">Medicine ${medicineCounter}:</label>
+        <select class="form-control" name="medicines[]">
+          <option value="" selected disabled>Select a medicine</option>
+          {% for med in MEDICINES %}
+            {% if med.medicine_id == medicine.medicine_id %}
+              <option value="{{ med.medicine_id }}" selected>{{ med.medicine_name }}</option>
+            {% else %}
+              <option value="{{ med.medicine_id }}">{{ med.medicine_name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <textarea class="form-control" name="dosages[]" rows="2" placeholder="Dosage">{{ medicine.dosage }}</textarea>
+        <br>
+      `;
+      medicineSelectorsWrapperDiv.appendChild(medicineDiv);
+      medicineCounter++;
+    {% endfor %}
+  {% endif %}
+
+  addMedicineBtn.addEventListener("click", () => {
+    const newMedicineDiv = document.createElement("div");
+    newMedicineDiv.classList.add("form-group");
+    newMedicineDiv.innerHTML = `
+      <label for="medicine-${medicineCounter}">Medicine ${medicineCounter}:</label>
+      <select class="form-control" name="medicines[]">
+        <option value="" selected disabled>Select a medicine</option>
+        {% for medicine in MEDICINES %}
+          <option value="{{ medicine.medicine_id }}">{{ medicine.medicine_name }}</option>
+        {% endfor %}
+      </select>
+      <textarea class="form-control" name="dosages[]" rows="2" placeholder="Dosage"></textarea>
+      <br>
+    `;
+    medicineSelectorsWrapperDiv.appendChild(newMedicineDiv);
+    medicineCounter++;
+  });
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const doctorId = urlParams.get('doctor_id');
+
+  const doctorIdInput = document.querySelector('input[name="doctor_id"]');
+  doctorIdInput.value = doctorId;
+
+  const prescriptionForm = document.querySelector('#prescription-form');
+
+</script>
+
+
+{% endblock %}
+
+
+          {% comment %} <div class="form-group">
+            <label for="medicine-1">Medicine 1:</label>
+            <select class="form-control" name="medicines[]">
+              <option value="" selected disabled>Select a medicine</option>
+              {% for medicine in MEDICINES %}
+                <option value="{{ medicine.medicine_id }}">{{ medicine.medicine_name }}</option>
+              {% endfor %}
+            </select>
+            <textarea class="form-control" name="dosages[]" rows="2" placeholder="Dosage"></textarea>
+          </div> {% endcomment %}
+
+

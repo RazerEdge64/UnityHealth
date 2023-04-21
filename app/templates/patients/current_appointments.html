@@ -29,6 +29,7 @@
           <th scope="col">Date</th>
           <th scope="col">Start Time</th>
           <th scope="col">End Time</th>
+          <th scope="col">Prescription</th>
           <th scope="col">Delete</th>
         </tr>
       </thead>
@@ -79,6 +80,13 @@
           { 'data': 'date' },
           { 'data': 'start_time' },
           { 'data': 'end_time' },
+          {
+            "data": null,
+            "render": function (data, type, row) {
+              feather.replace();
+              return "<a class='edit_product' target='_blank' href='/prescription?appointment_id="+row.appointment_id+"' id='edit_button'> <span data-feather='file-text'></span> </a>";
+            }
+          },
           {
             "data": null,
             "render": function (data, type, row) {
