@@ -12,11 +12,15 @@ CREATE TABLE doctors (
     supervisor INT
 );
 
-ALTER TABLE doctors 
-ADD hospital_id INT,
-ADD FOREIGN KEY (hospital_id) REFERENCES hospitals(hospital_id);
+ALTER TABLE doctors
+DROP FOREIGN KEY doctors_ibfk_1;
 
-ALTER TABLE doctors DROP COLUMN hospital_id;
+ALTER TABLE doctors 
+ADD FOREIGN KEY (hospital_id) REFERENCES hospitals(hospital_id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION;
+
+-- ALTER TABLE doctors DROP COLUMN hospital_id;
 
 
 CREATE TABLE patients (
@@ -40,6 +44,17 @@ CREATE TABLE appointments (
     CONSTRAINT appointment_doctors_fk FOREIGN KEY (doctor_id)
         REFERENCES doctors (doctor_id)
 );
+
+ALTER TABLE appointments DROP FOREIGN KEY appointment_patients_fk;
+
+ALTER TABLE appointments ADD CONSTRAINT appointment_patients_fk FOREIGN KEY (patient_id)
+        REFERENCES patients (patient_id) ON DELETE CASCADE;
+
+ALTER TABLE appointments DROP FOREIGN KEY appointment_doctors_fk;
+
+ALTER TABLE appointments ADD CONSTRAINT appointment_doctors_fk FOREIGN KEY (doctor_id)
+        REFERENCES doctors (doctor_id) ON DELETE CASCADE;
+
 
 CREATE TABLE specialization (
     specialization_id INT PRIMARY KEY auto_increment,
@@ -71,6 +86,15 @@ CREATE TABLE time_slots (
   FOREIGN KEY (doctor_id) REFERENCES doctors (doctor_id)
 );
 
+ALTER TABLE time_slots drop constraint time_slots_doctors_fk;
+ALTER TABLE time_slots drop constraint time_slots_ibfk_1;
+
+ALTER TABLE time_slots
+ADD CONSTRAINT fk_time_slots_doctors
+FOREIGN KEY (doctor_id)
+REFERENCES doctors(doctor_id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION;
 
 
 INSERT INTO patients (patient_id, first_name, last_name, date_of_birth, gender, phone_no)
@@ -126,7 +150,7 @@ VALUES
     ('Memorial Hospital', '456 Oak Ave.', '555-555-9876', '555-555-4321', 'www.memorialhospital.com', 'info@memorialhospital.com'),
     ('Community Hospital', '789 Elm St.', '555-555-5555', '555-555-5555', 'www.communityhospital.com', 'info@communityhospital.com');
 
--- SET SQL_SAFE_UPDATES = 0;
+SET SQL_SAFE_UPDATES = 0;
 -- UPDATE doctors SET hospital_id = FLOOR(RAND()*3) + 1;
 -- DELETE FROM time_slots;
 -- TRUNCATE TABLE appointments;
@@ -160,6 +184,28 @@ CREATE TABLE doctor_specializations (
   FOREIGN KEY (specialization_id) REFERENCES specializations(specialization_id)
 );
 
+-- 
+ALTER TABLE doctor_specializations
+DROP FOREIGN KEY doctor_specializations_ibfk_1;
+ALTER TABLE doctor_specializations
+DROP FOREIGN KEY doctor_specializations_ibfk_2;
+
+ALTER TABLE doctor_specializations
+ADD CONSTRAINT doctor_specializations_ibfk_1
+FOREIGN KEY (doctor_id)
+REFERENCES doctors(doctor_id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION;
+
+ALTER TABLE doctor_specializations
+ADD CONSTRAINT doctor_specializations_ibfk_2
+FOREIGN KEY (specialization_id)
+REFERENCES specializations(specialization_id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION;
+
+
+
 CREATE TABLE medicines (
   medicine_id INT PRIMARY KEY auto_increment,
   medicine_name VARCHAR(255) NOT NULL
@@ -173,6 +219,19 @@ CREATE TABLE prescription (
     FOREIGN KEY (appointment_id) REFERENCES appointments (appointment_id)
 );
 ALTER TABLE prescription ADD CONSTRAINT appointment_id_unique UNIQUE (appointment_id);
+
+ALTER TABLE prescription
+DROP FOREIGN KEY prescription_appointment_fk;
+ALTER TABLE prescription
+DROP FOREIGN KEY prescription_ibfk_1;
+
+
+ALTER TABLE prescription
+ADD CONSTRAINT prescription_appointment_fk
+FOREIGN KEY (appointment_id)
+REFERENCES appointments(appointment_id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION;
 
 
 CREATE TABLE prescribed_medicines (
@@ -233,13 +292,16 @@ ORDER BY RAND()
 LIMIT 10;
 --
 
-ALTER TABLE prescription
-ADD CONSTRAINT prescription_appointment_fk
-FOREIGN KEY (appointment_id)
-REFERENCES appointments(appointment_id)
-ON DELETE CASCADE;
+ALTER TABLE prescribed_medicines
+DROP FOREIGN KEY prescribed_medicines_ibfk_1;
+ALTER TABLE prescribed_medicines
+DROP FOREIGN KEY prescribed_medicines_ibfk_2;
+ALTER TABLE prescribed_medicines
+DROP FOREIGN KEY fk_prescribed_medicines_prescription;
 
 ALTER TABLE prescribed_medicines
 ADD CONSTRAINT fk_prescribed_medicines_prescription
 FOREIGN KEY (prescription_id) REFERENCES prescription (prescription_id)
-ON DELETE CASCADE;
+ON DELETE CASCADE
+ON UPDATE NO ACTION;
+

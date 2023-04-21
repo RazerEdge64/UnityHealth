@@ -39,6 +39,7 @@ function fetchDoctors() {
     },
     dataType: 'json',
     success: function(response) {
+      
         $('#doctor-list ul').empty();
         // Loop through response data and append list item for each doctor
         const listheading = '<h5>Doctor Name — Hospital</h5>'

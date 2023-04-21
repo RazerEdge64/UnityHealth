@@ -22,3 +22,10 @@
 2023-04-21 15:26:19,231 p_helper new patient added
 2023-04-21 15:26:23,355 p_helper patient 11 deleted
 2023-04-21 15:27:20,080 p_helper patient 6 deleted
+2023-04-21 15:44:11,591 d_helper doctor 2 deleted
+2023-04-21 16:16:04,090 d_helper doctor 10 deleted
+2023-04-21 16:16:20,428 p_helper new patient added
+2023-04-21 16:16:22,968 p_helper patient 12 deleted
+2023-04-21 19:55:05,322 d_helper new doctor added
+2023-04-21 19:55:19,244 d_helper patient 12 updated
+2023-04-21 19:55:26,154 d_helper doctor 12 deleted
