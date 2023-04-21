@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}
+| Prescription
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Prescription for the appointment : {{ APPOINTMENT_ID }}</h1>
+</div>
+
+  {% csrf_token %}
+
+  <div class="row">
+
+    <div class="col-sm-6">
+        <h4 class="h4">Prescribe medicines</h4>
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Medicine</th>
+              <th>Dosage</th>
+            </tr>
+          </thead>
+          <tbody id="medicines-table-body">
+            {% for medicine in MEDICINES %}
+            <tr>
+              <td>
+                {{ medicine.medicine_name }}
+              </td>
+              <td>
+                {{ medicine.dosage }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2">No medicines available</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+  </div>
+
+
+{% endblock %}

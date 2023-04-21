@@ -50,7 +50,6 @@ CREATE TABLE specialization (
 CREATE TABLE rooms (
     room_id INT PRIMARY KEY auto_increment,
     room_no VARCHAR(50)
-    
 );
 
 CREATE TABLE hospitals (
@@ -127,9 +126,120 @@ VALUES
     ('Memorial Hospital', '456 Oak Ave.', '555-555-9876', '555-555-4321', 'www.memorialhospital.com', 'info@memorialhospital.com'),
     ('Community Hospital', '789 Elm St.', '555-555-5555', '555-555-5555', 'www.communityhospital.com', 'info@communityhospital.com');
 
-SET SQL_SAFE_UPDATES = 0;
-UPDATE doctors SET hospital_id = FLOOR(RAND()*3) + 1;
-DELETE FROM time_slots;
-SET SQL_SAFE_UPDATES = 1;
+-- SET SQL_SAFE_UPDATES = 0;
+-- UPDATE doctors SET hospital_id = FLOOR(RAND()*3) + 1;
+-- DELETE FROM time_slots;
+-- TRUNCATE TABLE appointments;
+-- SET SQL_SAFE_UPDATES = 1;
 
 INSERT INTO time_slots (date, start_time, end_time, doctor_id) VALUES ('2023-04-12', '10:0:00', '11:0:00', 1);
+
+
+-- drop the time column
+ALTER TABLE appointments
+DROP COLUMN time;
+
+-- add the start_time and end_time columns
+ALTER TABLE appointments
+ADD start_time TIME NOT NULL,
+ADD end_time TIME NOT NULL;
+
+-- ALTER TABLE doctors ADD COLUMN specialization_id INT NOT NULL REFERENCES specialization(id);
+-- SET SQL_SAFE_UPDATES = 0;
+-- UPDATE doctors SET specialization_id = FLOOR(RAND()*9) + 1;
+-- SET SQL_SAFE_UPDATES = 1;
+
+-- ALTER TABLE doctors DROP COLUMN specialization_id;
+-- RENAME TABLE specialization TO specializations;
+
+CREATE TABLE doctor_specializations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  doctor_id INT,
+  specialization_id INT,
+  FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id),
+  FOREIGN KEY (specialization_id) REFERENCES specializations(specialization_id)
+);
+
+CREATE TABLE medicines (
+  medicine_id INT PRIMARY KEY auto_increment,
+  medicine_name VARCHAR(255) NOT NULL
+);
+ 
+CREATE TABLE prescription (
+    prescription_id INT AUTO_INCREMENT PRIMARY KEY,
+    -- medicine_id INT NOT NULL,
+    appointment_id INT NOT NULL,
+    -- dosage VARCHAR(255),
+    FOREIGN KEY (appointment_id) REFERENCES appointments (appointment_id)
+);
+ALTER TABLE prescription ADD CONSTRAINT appointment_id_unique UNIQUE (appointment_id);
+
+
+CREATE TABLE prescribed_medicines (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    medicine_id INT NOT NULL,
+    prescription_id INT NOT NULL,
+    dosage VARCHAR(255),
+    FOREIGN KEY (medicine_id) REFERENCES medicines (medicine_id),
+    FOREIGN KEY (prescription_id) REFERENCES prescription (prescription_id)
+);
+
+-- ALTER TABLE prescribed_medicines 
+-- ADD CONSTRAINT pk_prescribed_medicines PRIMARY KEY (prescription_id, medicine_id);
+
+
+INSERT INTO medicines (medicine_name) VALUES 
+('Aspirin'),
+('Ibuprofen'),
+('Acetaminophen'),
+('Naproxen'),
+('Cetirizine'),
+('Diphenhydramine'),
+('Loratadine'),
+('Fexofenadine'),
+('Dextromethorphan'),
+('Guaifenesin'),
+('Phenylephrine'),
+('Pseudoephedrine'),
+('Erythromycin'),
+('Amoxicillin'),
+('Cephalexin'),
+('Clarithromycin'),
+('Azithromycin'),
+('Metronidazole'),
+('Clindamycin'),
+('Doxycycline');
+
+INSERT INTO prescription (appointment_id) VALUES
+(9);
+
+INSERT INTO prescribed_medicines (medicine_id, prescription_id, dosage)
+VALUES (1, 1, '2 times a day'),
+       (2, 1, '3 times a day'),
+       (3, 1, '1 time a day'),
+       (4, 1, '2 times a day'),
+       (5, 1, '1 time a day');
+
+
+-- Insert random doctor_specializations records
+INSERT INTO doctor_specializations (doctor_id, specialization_id)
+SELECT
+    d.doctor_id,
+    s.specialization_id
+FROM
+    doctors d
+    CROSS JOIN specializations s
+ORDER BY RAND()
+LIMIT 10;
+--
+
+ALTER TABLE prescription
+ADD CONSTRAINT prescription_appointment_fk
+FOREIGN KEY (appointment_id)
+REFERENCES appointments(appointment_id)
+ON DELETE CASCADE;
+
+ALTER TABLE prescribed_medicines
+ADD CONSTRAINT fk_prescribed_medicines_prescription
+FOREIGN KEY (prescription_id) REFERENCES prescription (prescription_id)
+ON DELETE CASCADE;

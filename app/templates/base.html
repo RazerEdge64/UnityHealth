@@ -73,12 +73,17 @@
               <span class="navbar-toggler-icon"></span>
             </button>
             {% comment %} <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"> {% endcomment %}
-            <div class="navbar-nav">
+            <div class="navbar-nav d-flex flex-row align-items-center">
               <div class="nav-item text-nowrap">
-                <a class="nav-link px-3" href="{{"/logout/"}}"><span data-feather="log-out"></span></a>
+                Hi {{ request.user.username }} !
+              </div>
+              <div class="nav-item text-nowrap ml-auto">
+                <a class="nav-link px-3" href="{{"/logout/"}}">Logout <span data-feather="log-out"></span></a>
               </div>
             </div>
+            
         </header>
+        {% load auth_extras %}
           <div class="container-fluid">
             
             <!-- Loader -->
@@ -94,27 +99,39 @@
                   <ul class="nav flex-column">
                     {% if user.is_authenticated %}
                       {% if user.is_superuser%}
-                    <li class="nav-item ">
-                      <a class="nav-link doctors" href="{{"/doctors/"}}" title="Show all Doctors">
-                        <span data-feather="activity"></span>
-                        Doctors
-                      </a>
-                    </li>
+                      <li class="nav-item ">
+                        <a class="nav-link doctors" href="{{"/doctors/"}}" title="Show all Doctors">
+                          <span data-feather="activity"></span>
+                          Doctors
+                        </a>
+                      </li>
 
-                    <li class="nav-item">
-                      <a class="nav-link patients" aria-current="page" href="{{"/patients/"}}" title="Show all Patients">
-                        <span data-feather="users"></span>
-                        Patients
-                      </a>
-                    </li>
-                    
-                    <li class="nav-item ">
-                      <a class="nav-link appointments" href="{{"/appointments/"}}" title="Start all Appointments">
-                        <span data-feather="calendar"></span>
-                        Appointments
-                      </a>
-                    </li>
-                    {% endif %}
+                      <li class="nav-item">
+                        <a class="nav-link patients" aria-current="page" href="{{"/patients/"}}" title="Show all Patients">
+                          <span data-feather="users"></span>
+                          Patients
+                        </a>
+                      </li>
+                      
+                      <li class="nav-item ">
+                        <a class="nav-link appointments" href="{{"/appointments/"}}" title="Start all Appointments">
+                          <span data-feather="calendar"></span>
+                          Appointments
+                        </a>
+                      </li>
+                      {% endif %}
+                      
+
+                      {% if request.user|has_group:"patients" %} 
+
+                      <li class="nav-item ">
+                        <a class="nav-link Specializations" href = "{{"/specializations/"}}" title="Start all Specializations">
+                          <span data-feather="activity"></span>
+                          Specializations
+                        </a>
+                      </li>
+                      {% endif %}
+
                     {% endif %}
                   </ul>
           

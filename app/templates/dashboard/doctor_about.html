@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}
+| About
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-4">
+      <img class="img-thumbnail" src="{{ profile_photo_url }}" alt="Profile Photo">
+    </div>
+    <div class="col-md-8">
+      <h2>{{ first_name }} {{ last_name }}</h2>
+      <h4>{{ specialization }}</h4>
+      <p>{{ specialization_description }}</p>
+      <p><strong>Gender:</strong> {{ gender }}</p>
+      <p><strong>Experience:</strong> {{ experience }} years</p>
+      <p><strong>Hospital Name:</strong> {{ hospital_name }}</p>
+    </div>
+  </div>
+</div>
+<script>
+    $(document).ready(function() {
+      $.ajax({
+        url: '/doctor_details_ajax/',
+        method: 'POST',
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        dataType: 'json',
+        success: function(response) {
+          console.log(response);
+          // Update the HTML elements with the fetched data
+          $('#profile_photo').attr('src', response.profile_photo_url);
+          $('#first_name').text(response.first_name);
+          $('#last_name').text(response.last_name);
+          $('#specialization').text(response.specialization);
+          $('#specialization_description').text(response.specialization_description);
+          $('#gender').text(response.gender);
+          $('#experience').text(response.experience);
+          $('#hospital_name').text(response.hospital_name);
+        },
+        error: function(xhr, status, error) {
+          console.error(error);
+          // show error message
+        }
+      });
+    });
+</script>
+    
+{% endblock %}

@@ -9,12 +9,16 @@
 <div class="container">
 
 
-    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{"/user?id=0"}}">Home</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Book Slots</li>
-        </ol>
-    </nav>
+  <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      {% comment %} <li class="breadcrumb-item"><a href="{{"/user?id=" ~ request.GET.patient_id }}">{{"Home"|title}}</a></li> {% endcomment %}
+      {% comment %} <li class="breadcrumb-item"><a href="{% url 'user' %}?id={{request.GET.id}}">{{"Home"|title}}</a></li> {% endcomment %}
+      <li class="breadcrumb-item"><a href="{% url 'user' %}?id={{request.GET.patient_id}}">{{"Home"|title}}</a></li>
+      {% comment %} <li class="breadcrumb-item"><a href="{% url 'user' %}?id={{request.GET.id}}">{{"Home"|title}}</a></li> {% endcomment %}
+      <li class="breadcrumb-item active" aria-current="page">Book Slots</li>
+    </ol>
+  </nav>
+  
 
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Appointment Slots</h1>
@@ -78,40 +82,77 @@
           slotContainer.appendChild(cardDiv);
         });
 
-        // Attach event listeners to book-slot buttons
         document.querySelectorAll('.book-slot').forEach(function (slotButton) {
           slotButton.addEventListener('click', function (event) {
             const slotTime = event.target.getAttribute('data-slot');
             document.getElementById('slot-time').textContent = slotTime;
             const modal = new bootstrap.Modal(document.getElementById('bookingConfirmation'));
             modal.show();
+            
+            // Add active class to clicked card and remove from others
+            const card = event.target.closest('.card');
+            card.classList.add('active');
+            const otherCards = document.querySelectorAll('.card:not(.active)');
+            otherCards.forEach(function(otherCard) {
+              otherCard.classList.remove('active');
+            });
           });
         });
+
       },
       error: function(xhr, status, error) {
         console.error(error);
       }
     });
-  });
 
-  document.querySelectorAll('.book-slot').forEach(function (slotButton) {
-    slotButton.addEventListener('click', function (event) {
-      const slotTime = event.target.getAttribute('data-slot');
-      document.getElementById('slot-time').textContent = slotTime;
-      const modal = new bootstrap.Modal(document.getElementById('bookingConfirmation'));
-      modal.show();
-    });
-  });
 
-    document.querySelectorAll('.book-slot').forEach(function (slotButton) {
-      slotButton.addEventListener('click', function (event) {
-        const slotTime = event.target.getAttribute('data-slot');
-        document.getElementById('slot-time').textContent = slotTime;
-        const modal = new bootstrap.Modal(document.getElementById('bookingConfirmation'));
-        modal.show();
+    document.querySelector('.btn-confirm-booking').addEventListener('click', function (event) {
+      const doctorId = new URLSearchParams(window.location.search).get('doctor_id');
+      const patientId = new URLSearchParams(window.location.search).get('patient_id');
+      const slotTime = document.getElementById('slot-time').textContent;
+      const startTime = slotTime.split(' - ')[0];
+      const endTime = slotTime.split(' - ')[1];
+      // const selectedDate = document.querySelector('#container_for_cards .card.active .card-subtitle').textContent.trim();
+      const selectedDate = document.querySelector('#container_for_cards .card.active .card-subtitle').textContent.trim().replace('Date : ', '');
+
+      const paymentMethod = document.getElementById('payment-method').value;
+
+      console.log("here")
+      console.log(doctorId, patientId);
+      
+      $.ajax({
+        url: '/confirm_slot/',
+        method: 'POST',
+        data: {
+          doctor_id: doctorId,
+          patient_id: patientId,
+          date: selectedDate,
+          start_time: startTime,
+          end_time: endTime,
+          payment_type: paymentMethod,
+          csrfmiddlewaretoken: '{{csrf_token}}'
+        },
+        dataType: 'json',
+        success: function(response) {
+          console.log(response);
+          alert('Appointment booked successfully!');
+          window.location.replace('/user?id=' + patientId);
+      
+        },
+        error: function(xhr, status, error) {
+          console.error(error);
+          // show error message
+        }
       });
+
     });
+      
+    
   
+    
+  });
+
+
 </script>
 
   <!-- Booking Confirmation Modal -->
@@ -125,12 +166,21 @@
         <div class="modal-body">
           <p>Are you sure you want to book the <b><span id="slot-time"></span></b> slot?</p>
         </div>
+
+        <label> Choose Payment Type </label>
+        <select class="form-select" id="payment-method" aria-label="Payment Method" required>
+          <option value="credit_card">Credit Card</option>
+          <option value="insurance">Insurance</option>
+        </select>
+        
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary">Confirm Booking</button>
+          <button type="button" class="btn btn-primary btn-confirm-booking">Confirm Booking</button>
         </div>
       </div>
     </div>
   </div>
 
+
 {% endblock %}
+

@@ -27,9 +27,9 @@ def get_doctors():
         rows.append(
             {'doctor_id': r[0], 'first_name': r[1], 'last_name': r[2]})
 
-    json_str = json.dumps(rows)
+    # json_str = json.dumps(rows)
 
-    print(json_str)
+    # print(json_str)
 
     return rows
 

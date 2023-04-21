@@ -55,3 +55,35 @@ def create_time_slots(request):
     return redirect('/doctor_appointments?id='+str(doctor_id))
 
 
+def prescribe(request):
+    appointment_id = request.GET.get('appointment_id')
+    query = "SELECT * FROM medicines"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
+    data = [dict(zip(columns, row)) for row in rows]
+
+    query = "SELECT prescription_id FROM prescription WHERE appointment_id=%s"
+    cursor.execute(query, (appointment_id,))
+    result = cursor.fetchone()
+
+    if result is None:
+        medicines = []
+
+    else:
+        prescription_id = result[0]
+        query = "SELECT medicine_id, dosage FROM prescribed_medicines WHERE prescription_id=%s"
+        cursor.execute(query, (prescription_id,))
+        rows = cursor.fetchall()
+        columns = [desc[0] for desc in cursor.description]
+        medicines = [dict(zip(columns, row)) for row in rows]
+        
+
+    print(medicines)
+
+    return render(request, TEMPLATE_DIR+"prescribe.html", 
+        {
+        "MEDICINES" : data,
+        "APPOINTMENT_ID" : appointment_id,
+        "MEDICINES_EXISTING" : medicines
+        })

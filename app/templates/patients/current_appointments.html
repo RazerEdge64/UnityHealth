@@ -1,23 +1,19 @@
 {% extends 'base.html' %}
 
 {% block title %}
-| Doctor Appointment
+| Current Appointments
 {% endblock %}
-
-{% comment %} {% block user_profile %}
-href="{% url 'profile' %}"
-  <a class="btn btn-outline-primary">{{ "Hello Doctor "|add:request.user.username }}</a>
-{% endblock %} {% endcomment %}
 
 {% block content %}
 {% csrf_token %}
+
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Existing Appointments</h1>
+    <h1 class="h2">Current Appointments</h1>
   
     <div class="btn-toolbar mb-2 mb-md-0">
-        <a type="submit" href="/show_time_slots/" class="btn btn-sm btn-primary select-time-button">
+        <a type="submit" href="{% url 'select_doctor' %}?id={{request.GET.id}}" class="btn btn-sm btn-primary select-time-button">
         <span data-feather="plus"></span>
-        Create Time slots
+        Book New Appointment
         </a>
     </div>
 
@@ -29,11 +25,11 @@ href="{% url 'profile' %}"
       <thead>
         <tr>
           <th scope="col">ID</th>
-          <th scope="col">Patient Name</th>
+          <th scope="col">Doctor</th>
           <th scope="col">Date</th>
           <th scope="col">Start Time</th>
           <th scope="col">End Time</th>
-          <th scope="col">Prescribe</th>
+          <th scope="col">Prescription</th>
           <th scope="col">Delete</th>
         </tr>
       </thead>
@@ -41,9 +37,9 @@ href="{% url 'profile' %}"
 </div>
 
 <script>
-    $('.nav-item').find('.patients').addClass('active')
     const urlParams = new URLSearchParams(window.location.search);
-    const doctorId = urlParams.get('id');
+    const patientID = urlParams.get('id');
+    console.log(patientID);
 
     var TABLE = "";
     var x = 1;
@@ -58,10 +54,10 @@ href="{% url 'profile' %}"
         //"stateSave" : true,
         "serverMethod": 'post',
         "ajax": {
-          url: "/get_time_slots/",
+          url: "/get_appointments_for_patients/",
           data: {
             "csrfmiddlewaretoken": '{{csrf_token}}',
-            "doctor_id" : doctorId
+            "patient_id" : patientID
           },
         },
   
@@ -80,7 +76,7 @@ href="{% url 'profile' %}"
         "columns": [
   
           { 'data': 'appointment_id' },
-          { 'data': 'patient_name' },
+          { 'data': 'doctor_name' },
           { 'data': 'date' },
           { 'data': 'start_time' },
           { 'data': 'end_time' },
@@ -88,12 +84,9 @@ href="{% url 'profile' %}"
             "data": null,
             "render": function (data, type, row) {
               feather.replace();
-              const urlSearchParams = new URLSearchParams(window.location.search);
-              const doctorId = urlSearchParams.get("id");
-              const prescribeUrl = `/prescribe?appointment_id=${row.appointment_id}&doctor_id=${doctorId}`;
-              return `<a class='edit_product' target='_blank' href='${prescribeUrl}' id='edit_button'> <span data-feather='file-text'></span> </a>`;
+              return "<a class='edit_product' target='_blank' href='/prescription?appointment_id="+row.appointment_id+"' id='edit_button'> <span data-feather='file-text'></span> </a>";
             }
-          },        
+          },
           {
             "data": null,
             "render": function (data, type, row) {
@@ -138,27 +131,21 @@ href="{% url 'profile' %}"
       });
       feather.replace()
     }
-    //----
-  
-  window.addEventListener('DOMContentLoaded', function() {
-    const id = new URLSearchParams(window.location.search).get('id');
-    const selectTimeButton = document.querySelector('.select-time-button');
-    selectTimeButton.href += `?id=${id}`;
-  });
 </script>
+
 
 <!--_________________ Delete Modal _________________-->
 <div class="modal fade" id="Delete" tabindex="-1" aria-labelledby="DeleteLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="DeleteLabel">Delete Appointment</h5>
+          <h5 class="modal-title" id="DeleteLabel">Delete Patient</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form method="POST" action="{{"/delete_appointment_doctor/"}}">
+        <form method="POST" action="{% url 'delete_appointment_patient' %}?id={{request.GET.id}}">
             {% csrf_token %}
             <div class="modal-body">
-                Are you sure you want to delete patient - <b> <text id="delete_id_text_filler"></text> </b>?
+                Are you sure you want the appointment - <b> <text id="delete_id_text_filler"></text> </b>?
                 <input type="text" class="form-control" id="delete_id" name="delete_id" hidden>
                 <input type="text" class="form-control" id="doctor_id" name="doctor_id" hidden>
             </div>
@@ -170,4 +157,5 @@ href="{% url 'profile' %}"
       </div>
     </div>
   </div>
+
 {% endblock %}
