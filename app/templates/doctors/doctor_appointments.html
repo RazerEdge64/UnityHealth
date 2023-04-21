@@ -152,10 +152,10 @@ href="{% url 'profile' %}"
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="DeleteLabel">Delete Patient</h5>
+          <h5 class="modal-title" id="DeleteLabel">Delete Appointment</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form method="POST" action="{{"/delete_time_slot/"}}">
+        <form method="POST" action="{{"/delete_appointment_doctor/"}}">
             {% csrf_token %}
             <div class="modal-body">
                 Are you sure you want to delete patient - <b> <text id="delete_id_text_filler"></text> </b>?

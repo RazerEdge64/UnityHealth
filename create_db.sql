@@ -232,3 +232,14 @@ FROM
 ORDER BY RAND()
 LIMIT 10;
 --
+
+ALTER TABLE prescription
+ADD CONSTRAINT prescription_appointment_fk
+FOREIGN KEY (appointment_id)
+REFERENCES appointments(appointment_id)
+ON DELETE CASCADE;
+
+ALTER TABLE prescribed_medicines
+ADD CONSTRAINT fk_prescribed_medicines_prescription
+FOREIGN KEY (prescription_id) REFERENCES prescription (prescription_id)
+ON DELETE CASCADE;

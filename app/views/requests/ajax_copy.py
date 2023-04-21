@@ -5,6 +5,45 @@ from datetime import timedelta
 from ...database.connections import cursor, cnx
 
 
+# def get_appointments_ajax(request):
+#     query = """
+#         SELECT a.*, CONCAT(p.first_name, ' ', p.last_name) AS patient_name, 
+#                CONCAT(d.first_name, ' ', d.last_name) AS doctor_name 
+#         FROM appointments a 
+#         JOIN patients p ON a.patient_id = p.patient_id 
+#         JOIN doctors d ON a.doctor_id = d.doctor_id
+#     """
+#     cursor.execute(query)
+
+#     rows = cursor.fetchall()
+#     # cursor.callproc('get_appointments_ajax')
+#     # rows = cursor.fetchall()
+#     print("get_appointments_ajax")
+#     print(rows)
+
+#     columns = [desc[0] for desc in cursor.description]
+#     data = [dict(zip(columns, row)) for row in rows]
+#     for item in data:
+#         start_time = item["start_time"]
+#         end_time = item["end_time"]
+
+#         # Convert start_time and end_time to timedelta objects
+#         start_time_td = timedelta(seconds=start_time.seconds)
+#         end_time_td = timedelta(seconds=end_time.seconds)
+
+#         # Format start_time and end_time as strings in HH:MM format
+#         start_time_str = str(start_time_td.seconds // 3600).zfill(2) + ":" + str((start_time_td.seconds // 60) % 60).zfill(2)
+#         end_time_str = str(end_time_td.seconds // 3600).zfill(2) + ":" + str((end_time_td.seconds // 60) % 60).zfill(2)
+
+#         # Update the dictionary with the formatted strings
+#         item["start_time"] = start_time_str
+#         item["end_time"] = end_time_str
+#     return JsonResponse({
+#         "recordsTotal": len(data),
+#         "recordsFiltered": len(data),
+#         "data": data
+#     })
+
 def get_appointments_ajax(request):
     with cnx.cursor() as cursor:
         cursor.callproc('get_appointments_ajax')
@@ -13,8 +52,14 @@ def get_appointments_ajax(request):
         columns = []
         for result in results:
             rows = result.fetchall()
-            columns = [desc[0] for desc in result.description] 
+            columns = [desc[0] for desc in result.description]  # Get the columns from the result object
             procedure_result.append(rows)
+
+        print(procedure_result)
+        print("-----------")
+        print(columns)
+
+        # columns = [desc[0] for desc in cursor.description]
 
         data = [dict(zip(columns, row)) for row in procedure_result[0]]
         print("-----------")
@@ -65,62 +110,13 @@ def get_appointments_ajax(request):
 
 
 def get_doctors_ajax(request):
-    cursor = cnx.cursor()
 
-    # Call the stored procedure
-    cursor.callproc("get_doctors_ajax")
+    query = "SELECT * FROM doctors"
+    cursor.execute(query)
 
-    # Get the results
-    results = cursor.stored_results()
-    procedure_result = []
-    columns = []
-    for result in results:
-        rows = result.fetchall()
-        columns = [desc[0] for desc in result.description]  # Get the columns from the result object
-        procedure_result.append(rows)
-
-    # Convert the data to a dictionary format
-    data = []
-    for row in procedure_result[0]:
-        data.append(dict(zip(columns, row)))
-
-    # Return the data as a JSON response
-    return JsonResponse({
-        "data": data,
-        "recordsTotal": len(data),
-        "recordsFiltered": len(data)
-    })
-
-
-
-def get_patients_ajax(request):
-    cursor.callproc('get_patients_ajax')
-    results = cursor.stored_results()
-    procedure_result = []
-    columns = []
-    for result in results:
-        rows = result.fetchall()
-        columns = [desc[0] for desc in result.description]
-        procedure_result.append(rows)
-
-    data = [dict(zip(columns, row)) for row in procedure_result[0]]
-    return JsonResponse({
-        "recordsTotal": len(data),
-        "recordsFiltered": len(data),
-        "data": data
-    })
-
-
-
-def fetch_hospitals(request):
-    cursor.callproc('fetch_hospitals')
-    results = cursor.stored_results()
-    data = []
-    columns = []
-    for result in results:
-        rows = result.fetchall()
-        columns = [desc[0] for desc in result.description]  # Get the columns from the result object
-        data += [dict(zip(columns, row)) for row in rows]
+    rows = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
+    data = [dict(zip(columns, row)) for row in rows]
 
     return JsonResponse(
         {
@@ -131,25 +127,51 @@ def fetch_hospitals(request):
     )
 
 
+def get_patients_ajax(request):
+
+    query = "SELECT * FROM patients"
+    cursor.execute(query)
+
+    rows = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
+    data = [dict(zip(columns, row)) for row in rows]
+
+    return JsonResponse(
+        {
+            "recordsTotal": len(data),
+            "recordsFiltered": len(data),
+            "data": data
+        }
+    )
+
+
+def fetch_hospitals(request):
+    query = "SELECT * FROM hospitals"
+    cursor.execute(query)
+
+    rows = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
+    data = [dict(zip(columns, row)) for row in rows]
+
+    return JsonResponse({"data":data})
+
 
 def fetch_doctors(request):
     import json
     json_data = json.loads(request.body)
     hospital_id = json_data.get("hospital_id")
 
-    cursor.callproc('fetch_doctors', [hospital_id])
+    # hospital_id = request.POST.get("hospital_id")
+    print(hospital_id)
+    query = "SELECT * FROM doctors WHERE hospital_id = "+hospital_id
+    cursor.execute(query)
 
-    results = cursor.stored_results()
-
-    data = []
-    columns = []
-
-    for result in results:
-        rows = result.fetchall()
-        columns = [desc[0] for desc in result.description]
-        data += [dict(zip(columns, row)) for row in rows]
+    rows = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
+    data = [dict(zip(columns, row)) for row in rows]
 
     return JsonResponse({"data":data})
+
 
 
 
@@ -157,15 +179,18 @@ def get_time_slots(request):
     doctor_id = request.POST.get('doctor_id')
     print(doctor_id)
     
-    cursor.callproc('get_time_slots', [doctor_id])
-    results = cursor.stored_results()
+    # query = "SELECT * FROM time_slots WHERE doctor_id=%s"
+    query = """
+    SELECT a.*, CONCAT(p.first_name, ' ', p.last_name) AS patient_name
+    FROM appointments a 
+    JOIN patients p ON a.patient_id = p.patient_id
+    WHERE a.doctor_id = %s 
+    """
+    cursor.execute(query, (doctor_id,))
 
-    data = []
-    columns = []
-    for result in results:
-        rows = result.fetchall()
-        columns = [desc[0] for desc in result.description]
-        data += [dict(zip(columns, row)) for row in rows]
+    rows = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
+    data = [dict(zip(columns, row)) for row in rows]
 
     for item in data:
         start_time = item["start_time"]
@@ -191,18 +216,6 @@ def get_time_slots(request):
         }
     )
 
-
-
-# def delete_time_slot(request):
-#     id = request.POST.get('delete_id')
-#     doctor_id = request.POST.get('doctor_id')
-#     print("before cursor")
-#     with cnx.cursor() as cursor:
-#         print('before proc')
-#         cursor.callproc('delete_time_slot', (id,))
-#         print('after proc')
-#         cnx.commit()
-#     return redirect('/doctor_appointments?id='+str(doctor_id))
 
 def delete_time_slot(request):
     id = request.POST.get('delete_id')
@@ -331,15 +344,6 @@ def delete_appointment(request):
     return redirect('/appointments')
 
 
-def delete_appointment_doctor(request):
-    doctor_id = request.POST.get('doctor_id')
-    appointment_id = request.POST.get('delete_id')
-    query = "DELETE FROM appointments WHERE appointment_id = %s"
-    cursor.execute(query, (appointment_id,))
-    cnx.commit()
-    return redirect('/doctor_appointments?id='+str(doctor_id))
-
-
 def fetch_doctors_with_specialization(request):
     specialization_id = request.POST.get('specialization_id')
     query = """
@@ -408,13 +412,9 @@ def create_prescription(request):
 
 
 def fetch_all_medicines(request):
-    cursor.callproc('fetch_all_medicines')
-    results = cursor.stored_results()
-    data = []
-    columns = []
-    for result in results:
-        rows = result.fetchall()
-        columns = [desc[0] for desc in result.description]
-        data += [dict(zip(columns, row)) for row in rows]
+    query = "SELECT * FROM medicines"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    columns = [desc[0] for desc in cursor.description]
+    data = [dict(zip(columns, row)) for row in rows]
     return JsonResponse({"data": data})
-

@@ -63,6 +63,7 @@ urlpatterns = [
     path('get_appointments_for_patients/', ajax.get_appointments_for_patients, name="get_appointments_for_patients"),
     path('confirm_slot/', ajax.confirm_slot, name="confirm_slot"),
     path('delete_appointment/', ajax.delete_appointment, name="delete_appointment"),
+    path('delete_appointment_doctor/', ajax.delete_appointment_doctor, name="delete_appointment_doctor"),
     path('fetch_doctors_with_specialization/', ajax.fetch_doctors_with_specialization, name="fetch_doctors_with_specialization"),
     path('create_prescription/', ajax.create_prescription, name="create_prescription"),
     path('fetch_all_medicines/', ajax.fetch_all_medicines, name="fetch_all_medicines"),
