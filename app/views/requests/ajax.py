@@ -255,22 +255,17 @@ def get_time_slots_for_patients(request):
 def get_appointments_for_patients(request):
     patient_id = request.POST.get('patient_id')
     print(patient_id)
-    query = """
-    SELECT appointments.appointment_id, appointments.date, appointments.start_time, 
-    appointments.end_time, appointments.type, 
-    CONCAT(doctors.first_name, ' ', doctors.last_name) AS doctor_name FROM appointments
-    INNER JOIN doctors
-        ON appointments.doctor_id = doctors.doctor_id 
-        WHERE appointments.patient_id=%s
-        """
+    cursor.callproc("get_appointments_for_patients", [patient_id])
+    results = cursor.stored_results()
+    procedure_result = []
+    columns = []
+    for result in results:
+        rows = result.fetchall()
+        columns = [desc[0] for desc in result.description]
+        procedure_result += [dict(zip(columns, row)) for row in rows]
 
-    cursor.execute(query, (patient_id,))
 
-    rows = cursor.fetchall()
-    columns = [desc[0] for desc in cursor.description]
-    data = [dict(zip(columns, row)) for row in rows]
-
-    for item in data:
+    for item in procedure_result:
         start_time = item["start_time"]
         end_time = item["end_time"]
 
@@ -288,9 +283,9 @@ def get_appointments_for_patients(request):
 
     return JsonResponse(
         {
-            "recordsTotal": len(data),
-            "recordsFiltered": len(data),
-            "data": data
+            "recordsTotal": len(procedure_result),
+            "recordsFiltered": len(procedure_result),
+            "data": procedure_result
         }
     )
 
@@ -342,20 +337,19 @@ def delete_appointment_doctor(request):
 
 def fetch_doctors_with_specialization(request):
     specialization_id = request.POST.get('specialization_id')
-    query = """
-        SELECT d.doctor_id, CONCAT(d.first_name, ' ', d.last_name) AS doctor_name, h.hospital_name
-        FROM doctors d
-        JOIN doctor_specializations ds ON d.doctor_id = ds.doctor_id
-        JOIN hospitals h ON d.hospital_id = h.hospital_id
-        WHERE ds.specialization_id = %s
-    """
-    cursor.execute(query, (specialization_id,))
-    rows = cursor.fetchall()
-    columns = [desc[0] for desc in cursor.description]
-    data = [dict(zip(columns, row)) for row in rows]
+    
+    print("Before call proc")
+    cursor.callproc("fetch_doctors_with_specialization", [specialization_id])
+    print("After call proc")
+    results = cursor.stored_results()
+    print("After stored")
+    data = []
+    for result in results:
+        rows = result.fetchall()
+        columns = [desc[0] for desc in result.description]
+        data += [dict(zip(columns, row)) for row in rows]
     print(data)
     return JsonResponse({"data": data})
-
 
 
 def create_prescription(request):
